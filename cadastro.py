@@ -1,16 +1,6 @@
-from enum import Enum
+from semana import DiaDaSemana
 from openpyxl import Workbook
 import os
-
-class DiaDaSemana(Enum):
-    SEGUNDA = 1
-    TERCA = 2
-    QUARTA = 3
-    QUINTA = 4
-    SEXTA = 5
-    SABADO = 6
-    DOMINGO = 7
-
 class Usuario:
     def __init__(self):
         self.objetivo = None
@@ -163,12 +153,10 @@ class Usuario:
         print(f"5. Foco do Corpo: {self.foco_corpo['resposta']} (Escolha {self.foco_corpo['numero']})")
 
     def salvar_respostas_excel(self):
-        # Definir o caminho para a pasta Downloads
         caminho_downloads = os.path.join(os.path.expanduser("~"), "Downloads")
         nome_arquivo = "respostas_musculacao.xlsx"
         caminho_arquivo = os.path.join(caminho_downloads, nome_arquivo)
 
-        # Verificar se o arquivo já existe
         if os.path.exists(caminho_arquivo):
             opcao = input(f"O arquivo '{nome_arquivo}' já existe. Deseja sobrescrever (s), renomear (r) ou cancelar (c)? ").strip().lower()
             if opcao == 'r':
@@ -178,12 +166,10 @@ class Usuario:
                 print("Operação cancelada.")
                 return
 
-        # Criar uma nova planilha do Excel
         workbook = Workbook()
         sheet = workbook.active
         sheet.title = "Respostas"
 
-        # Adicionar os dados na planilha
         sheet.append(["Pergunta", "Resposta", "Escolha"])
         sheet.append(["Objetivo", self.objetivo['resposta'], self.objetivo['numero']])
         sheet.append(["Dias de Treino", ', '.join(self.dias_treino), ""])
@@ -191,11 +177,5 @@ class Usuario:
         sheet.append(["Lesão ou Limitação", self.lesao_limitacao['resposta'], self.lesao_limitacao['numero']])
         sheet.append(["Foco do Corpo", self.foco_corpo['resposta'], self.foco_corpo['numero']])
 
-        # Salvar o arquivo
         workbook.save(caminho_arquivo)
         print(f"Respostas salvas no arquivo: {caminho_arquivo}")
-
-usuario = Usuario()
-usuario.coletar_respostas()
-usuario.imprimir_respostas()
-usuario.salvar_respostas_excel()
