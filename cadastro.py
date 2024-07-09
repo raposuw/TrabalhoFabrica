@@ -8,74 +8,15 @@ class Usuario:
         self.lesao_limitacao = None
         self.treino_selecionado = []
 
-    def perguntar_dias_treino(self):
-        print("Quais dias da semana você planeja treinar? (Separe por vírgula)")
-        print("( ) segunda")
-        print("( ) terça")
-        print("( ) quarta")
-        print("( ) quinta")
-        print("( ) sexta")
-        print("( ) sábado")
-        print("( ) domingo")
-        dias_treino = input("Digite os dias de treino: ").strip().lower().split(", ")
-        dias_validos = ['segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado', 'domingo']
-        for dia in dias_treino:
-            if dia not in dias_validos:
-                print(f"Dia inválido: {dia}. Por favor, escolha apenas dias válidos.")
-                return self.perguntar_dias_treino()
+    def receber_dias_treino(self, dias_treino):
         self.dias_treino = dias_treino
 
-    def perguntar_experiencia_musculacao(self):
-        print("Qual é o seu nível atual de experiência com musculação?")
-        print("1. Iniciante (menos de 6 meses)")
-        print("2. Intermediário (6 meses a 2 anos)")
-        print("3. Avançado (mais de 2 anos)")
-        opcao = input("Escolha uma opção pelo número correspondente: ").strip().lower()
-        while opcao not in ['1', '2', '3']:
-            print("Opção inválida. Escolha uma opção válida.")
-            opcao = input("Escolha uma opção pelo número correspondente: ").strip().lower()
+    def receber_experiencia(self, experiencia):
+        self.experiencia = experiencia
 
-        opcoes = {
-            '1': {"numero": 1, "resposta": "Iniciante (menos de 6 meses)"},
-            '2': {"numero": 2, "resposta": "Intermediário (6 meses a 2 anos)"},
-            '3': {"numero": 3, "resposta": "Avançado (mais de 2 anos)"}
-        }
-        self.experiencia = opcoes[opcao]
+    def receber_lesao_limitacao(self, lesao_limitacao):
+        self.lesao_limitacao = lesao_limitacao
 
-    def perguntar_lesao_limitacao(self):
-        print("Você tem alguma lesão ou limitação física que devemos considerar ao montar seu treino?")
-        print("1. Sim")
-        print("2. Não")
-        resposta = input("Escolha uma opção pelo número correspondente ou deixe em branco para não especificar: ").strip().lower()
-        while resposta not in ['1', '2', '']:
-            print("Opção inválida. Escolha uma opção válida.")
-            resposta = input("Escolha uma opção pelo número correspondente ou deixe em branco para não especificar: ").strip().lower()
-
-        if resposta == '1':
-            print("Opções de lesão ou limitação física:")
-            print("1. Ombros")
-            print("2. Costas")
-            print("3. Braços (incluindo cotovelos, punhos e mãos)")
-            print("4. Pernas (incluindo quadril, joelhos, tornozelos e pés)")
-            opcao = input("Escolha uma opção pelo número correspondente: ").strip().lower()
-            while opcao not in ['1', '2', '3', '4']:
-                print("Opção inválida. Escolha uma opção válida.")
-                opcao = input("Escolha uma opção pelo número correspondente: ").strip().lower()
-
-            opcoes = {
-                '1': "Ombros",
-                '2': "Costas",
-                '3': "Braços (incluindo cotovelos, punhos e mãos)",
-                '4': "Pernas (incluindo quadril, joelhos, tornozelos e pés)"
-            }
-            self.lesao_limitacao = {"numero": opcao, "resposta": opcoes[opcao]}
-        else:
-            self.lesao_limitacao = {"numero": resposta, "resposta": "Não"}
-
-    def coletar_respostas(self):
-        self.perguntar_dias_treino()
-        self.perguntar_experiencia_musculacao()
-        self.perguntar_lesao_limitacao()
 
     def carregar_treinos_excel(self):
         caminho_downloads = os.path.join(os.path.expanduser("~"), "Downloads")
@@ -119,7 +60,7 @@ class Usuario:
 
     def montar_treino(self):
         treino_completo = []
-
+        print(self.dias_treino)
         if len(self.dias_treino) == 1:
             # Treino de um dia na semana
             treino_dia = []
@@ -437,8 +378,5 @@ class Usuario:
                         print(f"Exercício: {exercicio['exercicio']}, Séries: {exercicio['series']}, Repetições: {exercicio['repeticoes']}")
                 print()  # Linha em branco entre os grupos musculares
 
-# Exemplo de uso:
-usuario = Usuario()
-usuario.coletar_respostas()
-usuario.montar_treino()
-usuario.imprimir_treino()
+
+

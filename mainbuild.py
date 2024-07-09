@@ -1,8 +1,7 @@
 from cadastro import Usuario
 
-# Uso do código:
+
 usuario = Usuario()
 usuario.coletar_respostas()
-treinos = usuario.carregar_treinos_excel()
-usuario.montar_treino(treinos)
+usuario.montar_treino()
 usuario.imprimir_treino()
