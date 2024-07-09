@@ -1,4 +1,4 @@
-from openpyxl import load_workbook
+from openpyxl import load_workbook, Workbook
 import os
 
 class Usuario:
@@ -60,7 +60,6 @@ class Usuario:
 
     def montar_treino(self):
         treino_completo = []
-        print(self.dias_treino)
         if len(self.dias_treino) == 1:
             # Treino de um dia na semana
             treino_dia = []
@@ -139,6 +138,14 @@ class Usuario:
                                 'grupo_muscular': grupo_muscular.capitalize(),
                                 'exercicios': exercicios
                             })
+                if treino_dia:
+                    treino_completo.append({
+                        'dia': dia.capitalize(),
+                        'treino': treino_dia
+                    })
+                else:
+                    print(f"Não há treino definido para {dia.capitalize()}.")
+
         elif len(self.dias_treino) == 4:
             # Treino dividido em três dias na semana
             for i, dia in enumerate(self.dias_treino):
@@ -180,6 +187,13 @@ class Usuario:
                                 'grupo_muscular': grupo_muscular.capitalize(),
                                 'exercicios': exercicios
                             })
+                if treino_dia:
+                    treino_completo.append({
+                        'dia': dia.capitalize(),
+                        'treino': treino_dia
+                    })
+                else:
+                    print(f"Não há treino definido para {dia.capitalize()}.")
         elif len(self.dias_treino) == 5:
             # Treino dividido em três dias na semana
             for i, dia in enumerate(self.dias_treino):
@@ -230,6 +244,13 @@ class Usuario:
                                 'grupo_muscular': grupo_muscular.capitalize(),
                                 'exercicios': exercicios
                             })
+                if treino_dia:
+                    treino_completo.append({
+                        'dia': dia.capitalize(),
+                        'treino': treino_dia
+                    })
+                else:
+                    print(f"Não há treino definido para {dia.capitalize()}.")
         elif len(self.dias_treino) == 6:
             # Treino dividido em três dias na semana
             for i, dia in enumerate(self.dias_treino):
@@ -289,6 +310,13 @@ class Usuario:
                                 'grupo_muscular': grupo_muscular.capitalize(),
                                 'exercicios': exercicios
                             })
+                if treino_dia:
+                    treino_completo.append({
+                        'dia': dia.capitalize(),
+                        'treino': treino_dia
+                    })
+                else:
+                    print(f"Não há treino definido para {dia.capitalize()}.")
         elif len(self.dias_treino) == 7:
             # Treino dividido em três dias na semana
             for i, dia in enumerate(self.dias_treino):
@@ -378,5 +406,24 @@ class Usuario:
                         print(f"Exercício: {exercicio['exercicio']}, Séries: {exercicio['series']}, Repetições: {exercicio['repeticoes']}")
                 print()  # Linha em branco entre os grupos musculares
 
+    def salvar_treinos_excel(self):
+        caminho_downloads = os.path.join(os.path.expanduser("~"), "Downloads")
+        arquivo_excel = os.path.join(caminho_downloads, 'treinos_usuario.xlsx')
 
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.title = "Treinos"
 
+        # Escrever cabeçalhos
+        sheet.append(['Dia de Treino', 'Grupo Muscular', 'Exercício', 'Séries', 'Repetições'])
+
+        # Escrever dados dos treinos
+        for treino_dia in self.treino_selecionado:
+            for grupo in treino_dia['treino']:
+                for exercicio in grupo['exercicios']:
+                    sheet.append(
+                        [treino_dia['dia'], grupo['grupo_muscular'], exercicio['exercicio'], exercicio['series'],
+                         exercicio['repeticoes']])
+
+        workbook.save(filename=arquivo_excel)
+        print(f"Treinos salvos com sucesso em {arquivo_excel}")

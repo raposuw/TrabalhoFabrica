@@ -112,6 +112,4 @@ class InterfaceTreino:
 if __name__ == "__main__":
     from cadastro import Usuario  # Importar a classe Usuario aqui
 
-    usuario = Usuario()
-    interface = InterfaceTreino(usuario)
-    interface.exibir_interface()
+

@@ -1,7 +1,8 @@
 from cadastro import Usuario
+from interface import InterfaceTreino
 
 
 usuario = Usuario()
-usuario.coletar_respostas()
-usuario.montar_treino()
-usuario.imprimir_treino()
+interface = InterfaceTreino(usuario)
+interface.exibir_interface()
+usuario.salvar_treinos_excel()
