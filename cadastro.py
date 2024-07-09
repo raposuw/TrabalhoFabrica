@@ -47,7 +47,7 @@ class Usuario:
         exercicios_selecionados = []
 
         for treino in treinos:
-            if treino['grupo_muscular'] == grupo_muscular and (str(treino['dificuldade']).lower() == dificuldade.lower() or (treino['dificuldade'] == 2 and dificuldade == '3')):
+            if treino['grupo_muscular'] == grupo_muscular and (str(treino['dificuldade']).lower() == dificuldade.lower() ):
                 for exercicio in treino['exercicios']:
                     if exercicio['exercicio'] is not None and exercicio['exercicio'] not in grupos_selecionados:
                         exercicios_selecionados.append(exercicio)
