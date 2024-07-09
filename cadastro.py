@@ -114,35 +114,90 @@ class Usuario:
     def montar_treino(self):
         treino_completo = []
 
-        for dia in self.dias_treino:
-            treino_dia = []
+        if len(self.dias_treino) == 1:
+            # Caso haja apenas um dia de treino, monta um treino completo para todos os grupos musculares
+            treino_dia = {'todos_membros': []}
 
-            for grupo_muscular in ['peito', 'ombro', 'bíceps', 'tríceps', 'antebraço', 'costas', 'quadríceps', 'posterior de coxa', 'glúteo']:
+            todos_membros = ['peito', 'ombro', 'bíceps', 'tríceps', 'antebraço', 'costas', 'quadríceps', 'posterior de coxa', 'glúteo']
+
+            for grupo_muscular in todos_membros:
                 exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']))
                 if exercicios:
-                    treino_dia.append({
+                    treino_dia['todos_membros'].append({
                         'grupo_muscular': grupo_muscular.capitalize(),
                         'exercicios': exercicios
                     })
 
-            if treino_dia:
+            if treino_dia['todos_membros']:
                 treino_completo.append({
-                    'dia': dia.capitalize(),
+                    'dia': self.dias_treino[0].capitalize(),
                     'treino': treino_dia
                 })
             else:
-                print(f"Não há treino definido para {dia.capitalize()}.")
+                print(f"Não há treino definido para {self.dias_treino[0].capitalize()}.")
+
+        elif len(self.dias_treino) >= 2:
+            # Caso haja dois ou mais dias de treino, separa em superiores e inferiores alternadamente
+            for idx, dia in enumerate(self.dias_treino):
+                treino_dia = {'superiores': [], 'inferiores': []}
+
+                superiores = ['peito', 'ombro', 'bíceps', 'tríceps', 'antebraço']
+                inferiores = ['quadríceps', 'posterior de coxa', 'glúteo', 'costas']
+
+                if idx % 2 == 0:
+                    for grupo_muscular in superiores:
+                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']))
+                        if exercicios:
+                            treino_dia['superiores'].append({
+                                'grupo_muscular': grupo_muscular.capitalize(),
+                                'exercicios': exercicios
+                            })
+                else:
+                    for grupo_muscular in inferiores:
+                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']))
+                        if exercicios:
+                            treino_dia['inferiores'].append({
+                                'grupo_muscular': grupo_muscular.capitalize(),
+                                'exercicios': exercicios
+                            })
+
+                if treino_dia['superiores'] or treino_dia['inferiores']:
+                    treino_completo.append({
+                        'dia': dia.capitalize(),
+                        'treino': treino_dia
+                    })
+                else:
+                    print(f"Não há treino definido para {dia.capitalize()}.")
 
         self.treino_selecionado = treino_completo
 
     def imprimir_treino(self):
         for treino_dia in self.treino_selecionado:
             print(f"Dia de Treino: {treino_dia['dia']}")
-            for grupo in treino_dia['treino']:
-                print(f"Grupo Muscular: {grupo['grupo_muscular']}")
-                for exercicio in grupo['exercicios']:
-                    if exercicio['exercicio'] is not None:  # Verifica se há exercício definido
-                        print(f"Exercício: {exercicio['exercicio']}, Séries: {exercicio['series']}, Repetições: {exercicio['repeticoes']}")
+
+            if 'todos_membros' in treino_dia['treino']:
+                print("  Treino de todos membros:")
+                for grupo in treino_dia['treino']['todos_membros']:
+                    print(f"    Grupo Muscular: {grupo['grupo_muscular']}")
+                    for exercicio in grupo['exercicios']:
+                        if exercicio['exercicio'] is not None:  # Verifica se há exercício definido
+                            print(f"      Exercício: {exercicio['exercicio']}, Séries: {exercicio['series']}, Repetições: {exercicio['repeticoes']}")
+                print()  # Linha em branco entre os grupos musculares
+
+            if 'superiores' in treino_dia['treino']:
+                for grupo in treino_dia['treino']['superiores']:
+                    print(f"    Grupo Muscular: {grupo['grupo_muscular']}")
+                    for exercicio in grupo['exercicios']:
+                        if exercicio['exercicio'] is not None:  # Verifica se há exercício definido
+                            print(f"      Exercício: {exercicio['exercicio']}, Séries: {exercicio['series']}, Repetições: {exercicio['repeticoes']}")
+                print()  # Linha em branco entre os grupos musculares
+
+            if 'inferiores' in treino_dia['treino']:
+                for grupo in treino_dia['treino']['inferiores']:
+                    print(f"    Grupo Muscular: {grupo['grupo_muscular']}")
+                    for exercicio in grupo['exercicios']:
+                        if exercicio['exercicio'] is not None:  # Verifica se há exercício definido
+                            print(f"      Exercício: {exercicio['exercicio']}, Séries: {exercicio['series']}, Repetições: {exercicio['repeticoes']}")
                 print()  # Linha em branco entre os grupos musculares
 
 # Exemplo de uso:
