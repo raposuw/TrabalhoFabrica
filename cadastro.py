@@ -160,7 +160,6 @@ class Usuario:
                                 'grupo_muscular': grupo_muscular.capitalize(),
                                 'exercicios': exercicios
                             })
-
                 if treino_dia:
                     treino_completo.append({
                         'dia': dia.capitalize(),
@@ -198,6 +197,14 @@ class Usuario:
                                 'grupo_muscular': grupo_muscular.capitalize(),
                                 'exercicios': exercicios
                             })
+                if treino_dia:
+                    treino_completo.append({
+                        'dia': dia.capitalize(),
+                        'treino': treino_dia
+                    })
+                else:
+                    print(f"Não há treino definido para {dia.capitalize()}.")
+
         elif len(self.dias_treino) == 4:
             # Treino dividido em três dias na semana
             for i, dia in enumerate(self.dias_treino):
@@ -239,6 +246,14 @@ class Usuario:
                                 'grupo_muscular': grupo_muscular.capitalize(),
                                 'exercicios': exercicios
                             })
+                if treino_dia:
+                    treino_completo.append({
+                        'dia': dia.capitalize(),
+                        'treino': treino_dia
+                    })
+                else:
+                    print(f"Não há treino definido para {dia.capitalize()}.")
+
         elif len(self.dias_treino) == 5:
             # Treino dividido em três dias na semana
             for i, dia in enumerate(self.dias_treino):
@@ -289,6 +304,14 @@ class Usuario:
                                 'grupo_muscular': grupo_muscular.capitalize(),
                                 'exercicios': exercicios
                             })
+                if treino_dia:
+                    treino_completo.append({
+                        'dia': dia.capitalize(),
+                        'treino': treino_dia
+                    })
+                else:
+                    print(f"Não há treino definido para {dia.capitalize()}.")
+
         elif len(self.dias_treino) == 6:
             # Treino dividido em três dias na semana
             for i, dia in enumerate(self.dias_treino):
@@ -348,6 +371,14 @@ class Usuario:
                                 'grupo_muscular': grupo_muscular.capitalize(),
                                 'exercicios': exercicios
                             })
+                if treino_dia:
+                    treino_completo.append({
+                        'dia': dia.capitalize(),
+                        'treino': treino_dia
+                    })
+                else:
+                    print(f"Não há treino definido para {dia.capitalize()}.")
+
         elif len(self.dias_treino) == 7:
             # Treino dividido em três dias na semana
             for i, dia in enumerate(self.dias_treino):
@@ -416,7 +447,6 @@ class Usuario:
                                 'grupo_muscular': grupo_muscular.capitalize(),
                                 'exercicios': exercicios
                             })
-
                 if treino_dia:
                     treino_completo.append({
                         'dia': dia.capitalize(),
