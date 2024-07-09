@@ -3,5 +3,6 @@ from cadastro import Usuario
 # Uso do código:
 usuario = Usuario()
 usuario.coletar_respostas()
-usuario.imprimir_respostas()
-usuario.salvar_respostas_excel()
+treinos = usuario.carregar_treinos_excel()
+usuario.montar_treino(treinos)
+usuario.imprimir_treino()
