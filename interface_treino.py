@@ -1,7 +1,7 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
-
-
+from tkinter import messagebox
+from tkinter import ttk
+from usuario import Usuario
 
 class InterfaceTreino:
     def __init__(self, usuario):
@@ -10,7 +10,6 @@ class InterfaceTreino:
         self.root.geometry('700x900')
         self.root.title("Treino Personalizado")
 
-        # Cria um Canvas com Scrollbars
         self.canvas = tk.Canvas(self.root)
         self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
 
@@ -25,14 +24,17 @@ class InterfaceTreino:
         self.label = ttk.Label(self.frame, text="Perguntas sobre o Treino", font=("Helvetica", 16))
         self.label.grid(row=0, column=0, columnspan=2, pady=10, sticky=tk.N)
 
-        self.perguntas_dias_treino()
-        self.pergunta_experiencia()
-        self.pergunta_lesao_limitacao()
+        if self.usuario.verificar_treino_salvo():
+            self.usuario.carregar_treino_salvo()
+            self.exibir_treino()
+        else:
+            self.perguntas_dias_treino()
+            self.pergunta_experiencia()
+            self.pergunta_lesao_limitacao()
 
-        self.botao_confirmar = ttk.Button(self.frame, text="Confirmar", command=self.confirmar_respostas)
-        self.botao_confirmar.grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=10)
+            self.botao_confirmar = ttk.Button(self.frame, text="Confirmar", command=self.confirmar_respostas)
+            self.botao_confirmar.grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=10)
 
-        # Configurações adicionais para o scroll
         self.frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
         self.canvas.bind_all("<MouseWheel>", self.on_mousewheel)
 
@@ -88,32 +90,24 @@ class InterfaceTreino:
         self.usuario.receber_lesao_limitacao(lesao_limitacao)
 
         self.usuario.montar_treino()
+        self.usuario.salvar_treinos_excel()
         self.exibir_treino()
 
     def exibir_treino(self):
-        # Limpa o frame atual das perguntas
         for widget in self.frame.winfo_children():
             widget.destroy()
 
-        ttk.Label(self.frame, text="\n*** Treino Montado ***\n", font=("Helvetica", 10)).grid(row=0, column=0,
-                                                                                              columnspan=2, pady=10)
-
+        ttk.Label(self.frame, text="\n*** Treino Montado ***\n", font=("Helvetica", 10)).grid(row=0, column=0, columnspan=2, pady=10)
 
         fonte_treino = ("Helvetica", 9)
         for dia in self.usuario.treino_selecionado:
-            ttk.Label(self.frame, text=f"Dia: {dia['dia']}", font=("Helvetica", 13, "bold")).grid(
-                row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=5)
+            ttk.Label(self.frame, text=f"Dia: {dia['dia']}", font=("Helvetica", 13, "bold")).grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=5)
             for treino in dia['treino']:
-                ttk.Label(self.frame, text=f"\nGrupo Muscular: {treino['grupo_muscular']}", font=fonte_treino).grid(
-                    row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=3)
+                ttk.Label(self.frame, text=f"\nGrupo Muscular: {treino['grupo_muscular']}", font=fonte_treino).grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=3)
                 for exercicio in treino['exercicios']:
-                    ttk.Label(self.frame,
-                              text=f"Exercício: {exercicio['exercicio']} - Séries: {exercicio['series']} - Repetições: {exercicio['repeticoes']}",
-                              font=fonte_treino).grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=3)
-                ttk.Separator(self.frame, orient='horizontal').grid(row=len(self.frame.grid_slaves()), column=0,
-                                                                    columnspan=2, pady=5, sticky="ew")
+                    ttk.Label(self.frame, text=f"Exercício: {exercicio['exercicio']} - Séries: {exercicio['series']} - Repetições: {exercicio['repeticoes']}", font=fonte_treino).grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=3)
+                ttk.Separator(self.frame, orient='horizontal').grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=5, sticky="ew")
 
-        # Atualiza a área de visualização no Canvas
         self.frame.update_idletasks()
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
@@ -122,6 +116,3 @@ class InterfaceTreino:
 
     def exibir_interface(self):
         self.root.mainloop()
-
-
-

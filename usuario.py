@@ -1,12 +1,17 @@
-from openpyxl import load_workbook, Workbook
 import os
+from openpyxl import Workbook, load_workbook
+
+credentials_path = os.path.join(os.path.expanduser("~"), "Documents", "credenciais")
+os.makedirs(credentials_path, exist_ok=True)
 
 class Usuario:
-    def __init__(self):
-        self.dias_treino = []   #Variavel para armazenar os dias que a pessoa treina
-        self.experiencia = None  #Variavel que armazena  experiencia do usuario
-        self.lesao_limitacao = None #Variavel que armazena a lesão
-        self.treino_selecionado = []  #Variavel que armazena o treino
+    def __init__(self, email):
+        self.email = email
+        self.dias_treino = []
+        self.experiencia = None
+        self.lesao_limitacao = None
+        self.treino_selecionado = []
+        self.treinos_file = os.path.join(credentials_path, f'{self.email}_treino.xlsx')
 
     def receber_dias_treino(self, dias_treino):
         self.dias_treino = dias_treino
@@ -18,17 +23,15 @@ class Usuario:
         self.lesao_limitacao = lesao_limitacao
 
     def carregar_treinos_excel(self):
-        caminho_downloads = os.path.join(os.path.expanduser("~"), "Downloads")    #Acessa a pasta dowloads
-        arquivo_excel = os.path.join(caminho_downloads, 'planilha_treinos.xlsx')   #Procura a pasta com os treinos
-
-        workbook = load_workbook(filename=arquivo_excel, read_only=True)
+        planilha_treinos = os.path.join(os.path.expanduser("~"), "Downloads", 'planilha_treinos.xlsx')
+        workbook = load_workbook(filename=planilha_treinos, read_only=True)
         sheet = workbook.active
 
-        treinos = [] # Inicializa a lista de treinos
+        treinos = []
 
-        for row in sheet.iter_rows(min_row=2, values_only=True): # Itera pelas linhas da planilha
-            grupo_muscular, dificuldade, exercicio1, series1, repeticoes1, exercicio2, series2, repeticoes2, exercicio3, series3, repeticoes3, exercicio4, series4, repeticoes4 = row # Extrai e organiza os dados de cada linha
-            treinos.append({              # Armazena os dados em um dicionário e adiciona à lista de treinos
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            grupo_muscular, dificuldade, exercicio1, series1, repeticoes1, exercicio2, series2, repeticoes2, exercicio3, series3, repeticoes3, exercicio4, series4, repeticoes4 = row
+            treinos.append({
                 'grupo_muscular': grupo_muscular.lower(),
                 'dificuldade': dificuldade,
                 'exercicios': [
@@ -42,20 +45,20 @@ class Usuario:
         return treinos
 
     def selecionar_exercicios(self, grupo_muscular, dificuldade, grupos_selecionados, max_exercicios=3):
-        treinos = self.carregar_treinos_excel() # Carregar treinos do Excel
-        exercicios_selecionados = [] # Inicializar a lista de exercícios selecionados
+        treinos = self.carregar_treinos_excel()
+        exercicios_selecionados = []
 
-        for treino in treinos: # Itera pelos treinos carregados
-            if treino['grupo_muscular'] == grupo_muscular and (str(treino['dificuldade']).lower() == dificuldade.lower() ):
-                for exercicio in treino['exercicios']: # Selecionar exercícios não duplicados
+        for treino in treinos:
+            if treino['grupo_muscular'] == grupo_muscular and (str(treino['dificuldade']).lower() == dificuldade.lower()):
+                for exercicio in treino['exercicios']:
                     if exercicio['exercicio'] is not None and exercicio['exercicio'] not in grupos_selecionados:
                         exercicios_selecionados.append(exercicio)
                         grupos_selecionados.add(exercicio['exercicio'])
 
-                if len(exercicios_selecionados) >= max_exercicios: # Verifica o limite de exercícios selecionados
+                if len(exercicios_selecionados) >= max_exercicios:
                     break
 
-        return exercicios_selecionados[:max_exercicios]  # Retorna a lista limitada de exercícios
+        return exercicios_selecionados[:max_exercicios]
 
     def selecionar_e_montar_treino(self, grupos_musculares, max_exercicios, grupos_selecionados):
         treino_dia = []
@@ -104,26 +107,47 @@ class Usuario:
             for grupo in treino_dia['treino']:
                 print(f"Grupo Muscular: {grupo['grupo_muscular']}")
                 for exercicio in grupo['exercicios']:
-                    if exercicio['exercicio'] is not None:  # Verifica se há exercício definido
+                    if exercicio['exercicio'] is not None:
                         print(f"Exercício: {exercicio['exercicio']}, Séries: {exercicio['series']}, Repetições: {exercicio['repeticoes']}")
-                print()  # Linha em branco entre os grupos musculares
+                print()
 
     def salvar_treinos_excel(self):
-        caminho_downloads = os.path.join(os.path.expanduser("~"), "Downloads") # Acessa a pasta Downloads
-        arquivo_excel = os.path.join(caminho_downloads, 'treinos_usuario.xlsx') # Defini o caminho do arquivo Excel
-
-        workbook = Workbook() # Cria um novo arquivo Excel
+        workbook = Workbook()
         sheet = workbook.active
         sheet.title = "Treinos"
 
-        sheet.append(['Dia de Treino', 'Grupo Muscular', 'Exercício', 'Séries', 'Repetições']) # Escrever cabeçalhos
+        sheet.append(['Dia de Treino', 'Grupo Muscular', 'Exercício', 'Séries', 'Repetições'])
 
-        for treino_dia in self.treino_selecionado:  # Escrever dados dos treinos
+        for treino_dia in self.treino_selecionado:
             for grupo in treino_dia['treino']:
                 for exercicio in grupo['exercicios']:
-                    sheet.append(
-                        [treino_dia['dia'], grupo['grupo_muscular'], exercicio['exercicio'], exercicio['series'],
-                         exercicio['repeticoes']])
+                    sheet.append([treino_dia['dia'], grupo['grupo_muscular'], exercicio['exercicio'], exercicio['series'], exercicio['repeticoes']])
 
-        workbook.save(filename=arquivo_excel) # Salva o arquivo Excel
-        print(f"Treinos salvos com sucesso em {arquivo_excel}")
+        workbook.save(self.treinos_file)
+        print(f"Treinos salvos com sucesso em {self.treinos_file}")
+
+    def verificar_treino_salvo(self):
+        return os.path.exists(self.treinos_file)
+
+    def carregar_treino_salvo(self):
+        if self.verificar_treino_salvo():
+            workbook = load_workbook(filename=self.treinos_file, read_only=True)
+            sheet = workbook.active
+
+            treino_completo = []
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                dia, grupo_muscular, exercicio, series, repeticoes = row
+
+                treino_dia = next((td for td in treino_completo if td['dia'] == dia), None)
+                if not treino_dia:
+                    treino_dia = {'dia': dia, 'treino': []}
+                    treino_completo.append(treino_dia)
+
+                grupo = next((g for g in treino_dia['treino'] if g['grupo_muscular'] == grupo_muscular), None)
+                if not grupo:
+                    grupo = {'grupo_muscular': grupo_muscular, 'exercicios': []}
+                    treino_dia['treino'].append(grupo)
+
+                grupo['exercicios'].append({'exercicio': exercicio, 'series': series, 'repeticoes': repeticoes})
+
+            self.treino_selecionado = treino_completo
