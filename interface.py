@@ -98,7 +98,7 @@ class InterfaceTreino:
         ttk.Label(self.frame, text="\n*** Treino Montado ***\n", font=("Helvetica", 10)).grid(row=0, column=0,
                                                                                               columnspan=2, pady=10)
 
-        # Reduzindo o tamanho da fonte para os treinos
+
         fonte_treino = ("Helvetica", 9)
         for dia in self.usuario.treino_selecionado:
             ttk.Label(self.frame, text=f"Dia: {dia['dia']}", font=("Helvetica", 13, "bold")).grid(
