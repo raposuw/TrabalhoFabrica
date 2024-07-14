@@ -144,7 +144,7 @@ class Usuario:
                 else:
                     print(f"Não há treino definido para {dia.capitalize()}.")
 
-        elif len(self.dias_treino) == 4:
+        elif len(self.dias_treino) == 4:  #A
             # Treino dividido em três dias na semana
             for i, dia in enumerate(self.dias_treino):
                 treino_dia = []
