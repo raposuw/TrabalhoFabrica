@@ -3,7 +3,7 @@ from tkinter import messagebox
 from tkinter import ttk
 from usuario import Usuario
 
-class InterfaceTreino:
+class InterfaceTreino: #
     def __init__(self, usuario):
         self.usuario = usuario
         self.root = tk.Tk()
