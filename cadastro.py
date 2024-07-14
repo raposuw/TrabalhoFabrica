@@ -17,7 +17,6 @@ class Usuario:
     def receber_lesao_limitacao(self, lesao_limitacao):
         self.lesao_limitacao = lesao_limitacao
 
-
     def carregar_treinos_excel(self):
         caminho_downloads = os.path.join(os.path.expanduser("~"), "Downloads")    #Acessa a pasta dowloads
         arquivo_excel = os.path.join(caminho_downloads, 'planilha_treinos.xlsx')   #Procura a pasta com os treinos
@@ -58,332 +57,35 @@ class Usuario:
 
         return exercicios_selecionados[:max_exercicios]  # Retorna a lista limitada de exercícios
 
-    def montar_treino(self):
-        treino_completo = [] # Inicializar a lista de treinos completos
-        if len(self.dias_treino) == 1: # Verificar se há apenas um dia de treino
-            treino_dia = [] # Treino de um dia na semana
-            grupos_selecionados = set()
-            for grupo_muscular in ['peito', 'ombro', 'tríceps', 'costas', 'antebraço', 'bíceps', 'quadríceps', 'posterior de coxa', 'glúteo']: #Iterar pelos grupos musculares e selecionar exercícios
-                exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']), grupos_selecionados, max_exercicios=2)
-                if exercicios:
-                    treino_dia.append({
-                        'grupo_muscular': grupo_muscular.capitalize(),
-                        'exercicios': exercicios
-                    })
-            if treino_dia: # Adicionar o treino do dia ao treino completo
-                treino_completo.append({
-                    'dia': self.dias_treino[0].capitalize(),
-                    'treino': treino_dia
+    def selecionar_e_montar_treino(self, grupos_musculares, max_exercicios, grupos_selecionados):
+        treino_dia = []
+        for grupo_muscular in grupos_musculares:
+            exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']), grupos_selecionados, max_exercicios=max_exercicios)
+            if exercicios:
+                treino_dia.append({
+                    'grupo_muscular': grupo_muscular.capitalize(),
+                    'exercicios': exercicios
                 })
-            else:
-                print(f"Não há treino definido para {self.dias_treino[0].capitalize()}.")
+        return treino_dia
 
-        elif len(self.dias_treino) == 2: # Verificar se a pessoa colcoou dois dias de treino
-            for i, dia in enumerate(self.dias_treino):
-                treino_dia = [] # Treino de um dia na semana
-                grupos_selecionados = set()
-                if i == 0:  # Primeiro dia: Superiores
-                    for grupo_muscular in ['peito', 'ombro', 'tríceps', 'costas', 'antebraço', 'bíceps']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']), grupos_selecionados, max_exercicios=3)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 1:  # Segundo dia: Inferiores
-                    for grupo_muscular in ['quadríceps', 'posterior de coxa', 'glúteo']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']), grupos_selecionados, max_exercicios=3)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
+    def montar_treino(self):
+        treino_completo = []
+        grupos_por_dia = {
+            1: [['peito', 'ombro', 'tríceps', 'costas', 'antebraço', 'bíceps', 'quadríceps', 'posterior de coxa', 'glúteo'], 2],
+            2: [['peito', 'ombro', 'tríceps', 'costas', 'antebraço', 'bíceps'], ['quadríceps', 'posterior de coxa', 'glúteo'], 3],
+            3: [['peito', 'ombro', 'tríceps'], ['costas', 'antebraço', 'bíceps'], ['quadríceps', 'posterior de coxa', 'glúteo'], 3],
+            4: [['peito', 'ombro'], ['costas', 'antebraço'], ['quadríceps', 'posterior de coxa', 'glúteo'], ['bíceps', 'tríceps'], 4],
+            5: [['peito'], ['costas'], ['quadríceps', 'posterior de coxa', 'glúteo'], ['bíceps', 'tríceps'], ['ombro', 'antebraço'], 4],
+            6: [['peito'], ['costas'], ['quadríceps', 'posterior de coxa', 'glúteo'], ['bíceps'], ['tríceps'], ['ombro', 'antebraço'], 4],
+            7: [['peito'], ['costas'], ['quadríceps', 'posterior de coxa', 'glúteo'], ['bíceps'], ['tríceps'], ['ombro'], ['antebraço'], 4]
+        }
 
-                if treino_dia: # Adicionar o treino do dia ao treino completo
-                    treino_completo.append({
-                        'dia': dia.capitalize(),
-                        'treino': treino_dia
-                    })
-                else:
-                    print(f"Não há treino definido para {dia.capitalize()}.")
-
-        elif len(self.dias_treino) == 3: # Verificar se a pessoa colcoou 3 dias de treino
-            # Treino dividido em três dias na semana
+        num_dias = len(self.dias_treino)
+        if num_dias in grupos_por_dia:
+            grupos_musculares, max_exercicios = grupos_por_dia[num_dias][:-1], grupos_por_dia[num_dias][-1]
             for i, dia in enumerate(self.dias_treino):
-                treino_dia = []
                 grupos_selecionados = set()
-                if i == 0:  # Primeiro dia: Peito, Ombro, Tríceps
-                    for grupo_muscular in ['peito', 'ombro', 'tríceps']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']), grupos_selecionados, max_exercicios=3)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 1:  # Segundo dia: Costas, Antebraço, Bíceps
-                    for grupo_muscular in ['costas', 'antebraço', 'bíceps']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']), grupos_selecionados, max_exercicios=3)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 2:  # Terceiro dia: Quadríceps, Posterior de coxa, Glúteo
-                    for grupo_muscular in ['quadríceps', 'posterior de coxa', 'glúteo']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']), grupos_selecionados, max_exercicios=3)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                if treino_dia: # Adicionar o treino do dia ao treino completo
-                    treino_completo.append({
-                        'dia': dia.capitalize(),
-                        'treino': treino_dia
-                    })
-                else:
-                    print(f"Não há treino definido para {dia.capitalize()}.")
-
-        elif len(self.dias_treino) == 4:  #A
-            # Treino dividido em três dias na semana
-            for i, dia in enumerate(self.dias_treino):
-                treino_dia = []
-                grupos_selecionados = set()
-                if i == 0:  # Primeiro dia: Peito, Ombro
-                    for grupo_muscular in ['peito', 'ombro']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 1:  # Segundo dia: Costas, Antebraço,
-                    for grupo_muscular in ['costas', 'antebraço']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 2:  # Terceiro dia: Quadríceps, Posterior de coxa, Glúteo
-                    for grupo_muscular in ['quadríceps', 'posterior de coxa', 'glúteo']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 3:  # Quarto dia : Biceps e triceps
-                    for grupo_muscular in ['bíceps', 'tríceps']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                if treino_dia: # Adicionar o treino do dia ao treino completo
-                    treino_completo.append({
-                        'dia': dia.capitalize(),
-                        'treino': treino_dia
-                    })
-                else:
-                    print(f"Não há treino definido para {dia.capitalize()}.")
-        elif len(self.dias_treino) == 5:
-            # Treino dividido em três dias na semana
-            for i, dia in enumerate(self.dias_treino):
-                treino_dia = []
-                grupos_selecionados = set()
-                if i == 0:  # Primeiro dia: Peito
-                    for grupo_muscular in ['peito']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 1:  # Segundo dia: Costas
-                    for grupo_muscular in ['costas']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 2:  # Terceiro dia: Quadríceps, Posterior de coxa, Glúteo
-                    for grupo_muscular in ['quadríceps', 'posterior de coxa', 'glúteo']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 3:  # Quarto dia : Biceps e triceps
-                    for grupo_muscular in ['bíceps', 'tríceps']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 4:  # Quinto : Ombro e Antebraçoo
-                    for grupo_muscular in ['ombro', 'antebraço']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                if treino_dia: # Adicionar o treino do dia ao treino completo
-                    treino_completo.append({
-                        'dia': dia.capitalize(),
-                        'treino': treino_dia
-                    })
-                else:
-                    print(f"Não há treino definido para {dia.capitalize()}.")
-        elif len(self.dias_treino) == 6:
-            # Treino dividido em três dias na semana
-            for i, dia in enumerate(self.dias_treino):
-                treino_dia = []
-                grupos_selecionados = set()
-                if i == 0:  # Primeiro dia: Peito
-                    for grupo_muscular in ['peito']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 1:  # Segundo dia: Costas
-                    for grupo_muscular in ['costas']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 2:  # Terceiro dia: Quadríceps, Posterior de coxa, Glúteo
-                    for grupo_muscular in ['quadríceps', 'posterior de coxa', 'glúteo']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 3:  # Quarto dia : Biceps
-                    for grupo_muscular in ['bíceps']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 4:  # Quinto dia : triceps
-                    for grupo_muscular in ['tríceps']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 5:  # Sexto dia : Ombro e Antebraçoo
-                    for grupo_muscular in ['ombro', 'antebraço']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                if treino_dia: # Adicionar o treino do dia ao treino completo
-                    treino_completo.append({
-                        'dia': dia.capitalize(),
-                        'treino': treino_dia
-                    })
-                else:
-                    print(f"Não há treino definido para {dia.capitalize()}.")
-        elif len(self.dias_treino) == 7:
-            # Treino dividido em três dias na semana
-            for i, dia in enumerate(self.dias_treino):
-                treino_dia = []
-                grupos_selecionados = set()
-                if i == 0:  # Primeiro dia: Peito
-                    for grupo_muscular in ['peito']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 1:  # Segundo dia: Costas
-                    for grupo_muscular in ['costas']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 2:  # Terceiro dia: Quadríceps, Posterior de coxa, Glúteo
-                    for grupo_muscular in ['quadríceps', 'posterior de coxa', 'glúteo']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 3:  # Quarto dia : Biceps
-                    for grupo_muscular in ['bíceps']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 4:  # Quinto dia : triceps
-                    for grupo_muscular in ['tríceps']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 5:  # Sexto dia : Ombro
-                    for grupo_muscular in ['ombro']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-                elif i == 6:  # Setimo dia : Antebraço
-                    for grupo_muscular in ['antebraço']:
-                        exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
-                                                                grupos_selecionados, max_exercicios=4)
-                        if exercicios:
-                            treino_dia.append({
-                                'grupo_muscular': grupo_muscular.capitalize(),
-                                'exercicios': exercicios
-                            })
-
+                treino_dia = self.selecionar_e_montar_treino(grupos_musculares[i], max_exercicios, grupos_selecionados)
                 if treino_dia:
                     treino_completo.append({
                         'dia': dia.capitalize(),
@@ -391,6 +93,8 @@ class Usuario:
                     })
                 else:
                     print(f"Não há treino definido para {dia.capitalize()}.")
+        else:
+            print(f"Número de dias de treino inválido: {num_dias}")
 
         self.treino_selecionado = treino_completo
 
@@ -412,9 +116,7 @@ class Usuario:
         sheet = workbook.active
         sheet.title = "Treinos"
 
-
         sheet.append(['Dia de Treino', 'Grupo Muscular', 'Exercício', 'Séries', 'Repetições']) # Escrever cabeçalhos
-
 
         for treino_dia in self.treino_selecionado:  # Escrever dados dos treinos
             for grupo in treino_dia['treino']:
