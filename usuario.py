@@ -1,11 +1,19 @@
 import os
 from openpyxl import Workbook, load_workbook
 
+# Defina o caminho para a pasta de credenciais e treinos
 credentials_path = os.path.join(os.path.expanduser("~"), "Documents", "credenciais")
 os.makedirs(credentials_path, exist_ok=True)
 
+
 class Usuario:
     def __init__(self, email):
+        """
+        Inicializa a classe Usuario.
+
+        Parâmetros:
+        email (str): Email do usuário.
+        """
         self.email = email
         self.dias_treino = []
         self.experiencia = None
@@ -14,15 +22,39 @@ class Usuario:
         self.treinos_file = os.path.join(credentials_path, f'{self.email}_treino.xlsx')
 
     def receber_dias_treino(self, dias_treino):
+        """
+        Recebe os dias de treino selecionados pelo usuário.
+
+        Parâmetros:
+        dias_treino (list): Lista de dias de treino.
+        """
         self.dias_treino = dias_treino
 
     def receber_experiencia(self, experiencia):
+        """
+        Recebe o nível de experiência do usuário.
+
+        Parâmetros:
+        experiencia (dict): Dicionário com o nível de experiência.
+        """
         self.experiencia = experiencia
 
     def receber_lesao_limitacao(self, lesao_limitacao):
+        """
+        Recebe as lesões ou limitações físicas do usuário.
+
+        Parâmetros:
+        lesao_limitacao (str): Descrição da lesão ou limitação.
+        """
         self.lesao_limitacao = lesao_limitacao
 
     def carregar_treinos_excel(self):
+        """
+        Carrega os treinos de um arquivo Excel localizado na pasta Downloads do usuário.
+
+        Retorna:
+        list: Lista de dicionários contendo os treinos.
+        """
         planilha_treinos = os.path.join(os.path.expanduser("~"), "Downloads", 'planilha_treinos.xlsx')
         workbook = load_workbook(filename=planilha_treinos, read_only=True)
         sheet = workbook.active
@@ -45,11 +77,24 @@ class Usuario:
         return treinos
 
     def selecionar_exercicios(self, grupo_muscular, dificuldade, grupos_selecionados, max_exercicios=3):
+        """
+        Seleciona exercícios para um grupo muscular e dificuldade específica.
+
+        Parâmetros:
+        grupo_muscular (str): O grupo muscular alvo.
+        dificuldade (str): O nível de dificuldade do treino.
+        grupos_selecionados (set): Conjunto de exercícios já selecionados.
+        max_exercicios (int): Número máximo de exercícios a selecionar.
+
+        Retorna:
+        list: Lista de exercícios selecionados.
+        """
         treinos = self.carregar_treinos_excel()
         exercicios_selecionados = []
 
         for treino in treinos:
-            if treino['grupo_muscular'] == grupo_muscular and (str(treino['dificuldade']).lower() == dificuldade.lower()):
+            if treino['grupo_muscular'] == grupo_muscular and (
+                    str(treino['dificuldade']).lower() == dificuldade.lower()):
                 for exercicio in treino['exercicios']:
                     if exercicio['exercicio'] is not None and exercicio['exercicio'] not in grupos_selecionados:
                         exercicios_selecionados.append(exercicio)
@@ -61,9 +106,21 @@ class Usuario:
         return exercicios_selecionados[:max_exercicios]
 
     def selecionar_e_montar_treino(self, grupos_musculares, max_exercicios, grupos_selecionados):
+        """
+        Seleciona e monta o treino para os grupos musculares especificados.
+
+        Parâmetros:
+        grupos_musculares (list): Lista de grupos musculares.
+        max_exercicios (int): Número máximo de exercícios por grupo muscular.
+        grupos_selecionados (set): Conjunto de exercícios já selecionados.
+
+        Retorna:
+        list: Lista de treinos montados para um dia.
+        """
         treino_dia = []
         for grupo_muscular in grupos_musculares:
-            exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']), grupos_selecionados, max_exercicios=max_exercicios)
+            exercicios = self.selecionar_exercicios(grupo_muscular, str(self.experiencia['numero']),
+                                                    grupos_selecionados, max_exercicios=max_exercicios)
             if exercicios:
                 treino_dia.append({
                     'grupo_muscular': grupo_muscular.capitalize(),
@@ -72,15 +129,25 @@ class Usuario:
         return treino_dia
 
     def montar_treino(self):
+        """
+        Monta o treino completo para o usuário baseado nos dias de treino e experiência.
+        """
         treino_completo = []
         grupos_por_dia = {
-            1: [['peito', 'ombro', 'tríceps', 'costas', 'antebraço', 'bíceps', 'quadríceps', 'posterior de coxa', 'glúteo'], 2],
-            2: [['peito', 'ombro', 'tríceps', 'costas', 'antebraço', 'bíceps'], ['quadríceps', 'posterior de coxa', 'glúteo'], 3],
-            3: [['peito', 'ombro', 'tríceps'], ['costas', 'antebraço', 'bíceps'], ['quadríceps', 'posterior de coxa', 'glúteo'], 3],
-            4: [['peito', 'ombro'], ['costas', 'antebraço'], ['quadríceps', 'posterior de coxa', 'glúteo'], ['bíceps', 'tríceps'], 4],
-            5: [['peito'], ['costas'], ['quadríceps', 'posterior de coxa', 'glúteo'], ['bíceps', 'tríceps'], ['ombro', 'antebraço'], 4],
-            6: [['peito'], ['costas'], ['quadríceps', 'posterior de coxa', 'glúteo'], ['bíceps'], ['tríceps'], ['ombro', 'antebraço'], 4],
-            7: [['peito'], ['costas'], ['quadríceps', 'posterior de coxa', 'glúteo'], ['bíceps'], ['tríceps'], ['ombro'], ['antebraço'], 4]
+            1: [['peito', 'ombro', 'tríceps', 'costas', 'antebraço', 'bíceps', 'quadríceps', 'posterior de coxa',
+                 'glúteo'], 2],
+            2: [['peito', 'ombro', 'tríceps', 'costas', 'antebraço', 'bíceps'],
+                ['quadríceps', 'posterior de coxa', 'glúteo'], 3],
+            3: [['peito', 'ombro', 'tríceps'], ['costas', 'antebraço', 'bíceps'],
+                ['quadríceps', 'posterior de coxa', 'glúteo'], 3],
+            4: [['peito', 'ombro'], ['costas', 'antebraço'], ['quadríceps', 'posterior de coxa', 'glúteo'],
+                ['bíceps', 'tríceps'], 4],
+            5: [['peito'], ['costas'], ['quadríceps', 'posterior de coxa', 'glúteo'], ['bíceps', 'tríceps'],
+                ['ombro', 'antebraço'], 4],
+            6: [['peito'], ['costas'], ['quadríceps', 'posterior de coxa', 'glúteo'], ['bíceps'], ['tríceps'],
+                ['ombro', 'antebraço'], 4],
+            7: [['peito'], ['costas'], ['quadríceps', 'posterior de coxa', 'glúteo'], ['bíceps'], ['tríceps'],
+                ['ombro'], ['antebraço'], 4]
         }
 
         num_dias = len(self.dias_treino)
@@ -102,16 +169,23 @@ class Usuario:
         self.treino_selecionado = treino_completo
 
     def imprimir_treino(self):
+        """
+        Imprime o treino montado no console.
+        """
         for treino_dia in self.treino_selecionado:
             print(f"Dia de Treino: {treino_dia['dia']}")
             for grupo in treino_dia['treino']:
                 print(f"Grupo Muscular: {grupo['grupo_muscular']}")
                 for exercicio in grupo['exercicios']:
                     if exercicio['exercicio'] is not None:
-                        print(f"Exercício: {exercicio['exercicio']}, Séries: {exercicio['series']}, Repetições: {exercicio['repeticoes']}")
+                        print(
+                            f"Exercício: {exercicio['exercicio']}, Séries: {exercicio['series']}, Repetições: {exercicio['repeticoes']}")
                 print()
 
     def salvar_treinos_excel(self):
+        """
+        Salva os treinos do usuário em um arquivo Excel.
+        """
         workbook = Workbook()
         sheet = workbook.active
         sheet.title = "Treinos"
@@ -121,15 +195,26 @@ class Usuario:
         for treino_dia in self.treino_selecionado:
             for grupo in treino_dia['treino']:
                 for exercicio in grupo['exercicios']:
-                    sheet.append([treino_dia['dia'], grupo['grupo_muscular'], exercicio['exercicio'], exercicio['series'], exercicio['repeticoes']])
+                    sheet.append(
+                        [treino_dia['dia'], grupo['grupo_muscular'], exercicio['exercicio'], exercicio['series'],
+                         exercicio['repeticoes']])
 
         workbook.save(self.treinos_file)
         print(f"Treinos salvos com sucesso em {self.treinos_file}")
 
     def verificar_treino_salvo(self):
+        """
+        Verifica se o arquivo de treinos do usuário já existe.
+
+        Retorna:
+        bool: True se o arquivo existe, False caso contrário.
+        """
         return os.path.exists(self.treinos_file)
 
     def carregar_treino_salvo(self):
+        """
+        Carrega o treino salvo do arquivo Excel do usuário.
+        """
         if self.verificar_treino_salvo():
             workbook = load_workbook(filename=self.treinos_file, read_only=True)
             sheet = workbook.active

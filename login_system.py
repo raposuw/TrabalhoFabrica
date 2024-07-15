@@ -10,8 +10,15 @@ credentials_path = os.path.join(os.path.expanduser("~"), "Documents", "credencia
 os.makedirs(credentials_path, exist_ok=True)
 credentials_file = os.path.join(credentials_path, 'credentials.xlsx')
 
+
 class LoginSystem:
     def __init__(self, root):
+        """
+        Inicializa a interface gráfica do sistema de login.
+
+        Parâmetros:
+        root (tk.Tk): A janela principal da aplicação Tkinter.
+        """
         self.root = root
         self.root.title("Sistema de Login")
 
@@ -25,6 +32,9 @@ class LoginSystem:
         ttk.Button(main_frame, text="Login", command=self.open_login_window).pack(pady=10)
 
     def initialize_excel(self):
+        """
+        Inicializa o arquivo Excel para armazenar credenciais, adicionando cabeçalhos se necessário.
+        """
         if not os.path.exists(credentials_file):
             workbook = Workbook()
             sheet = workbook.active
@@ -33,6 +43,17 @@ class LoginSystem:
             workbook.save(credentials_file)
 
     def save_credentials(self, name, email, password):
+        """
+        Salva as credenciais do usuário no arquivo Excel.
+
+        Parâmetros:
+        name (str): Nome do usuário.
+        email (str): Email do usuário.
+        password (str): Senha do usuário.
+
+        Retorna:
+        bool: True se as credenciais foram salvas com sucesso, False caso contrário.
+        """
         try:
             workbook = load_workbook(credentials_file)
             sheet = workbook.active
@@ -44,6 +65,16 @@ class LoginSystem:
             return False
 
     def verify_credentials(self, email, password):
+        """
+        Verifica as credenciais do usuário no arquivo Excel.
+
+        Parâmetros:
+        email (str): Email do usuário.
+        password (str): Senha do usuário.
+
+        Retorna:
+        bool: True se as credenciais forem válidas, False caso contrário.
+        """
         try:
             workbook = load_workbook(credentials_file, read_only=True)
             sheet = workbook.active
@@ -55,6 +86,15 @@ class LoginSystem:
         return False
 
     def register_user(self, register_window, name, email, password):
+        """
+        Registra um novo usuário após verificar se todos os campos foram preenchidos.
+
+        Parâmetros:
+        register_window (tk.Toplevel): A janela de registro.
+        name (str): Nome do usuário.
+        email (str): Email do usuário.
+        password (str): Senha do usuário.
+        """
         if name and email and password:
             if self.save_credentials(name, email, password):
                 messagebox.showinfo("Sucesso", "Usuário registrado com sucesso!")
@@ -63,6 +103,13 @@ class LoginSystem:
             messagebox.showwarning("Aviso", "Por favor, preencha todos os campos")
 
     def login_user(self, email, password):
+        """
+        Realiza o login do usuário após verificar as credenciais.
+
+        Parâmetros:
+        email (str): Email do usuário.
+        password (str): Senha do usuário.
+        """
         if email and password:
             if self.verify_credentials(email, password):
                 messagebox.showinfo("Sucesso", "Login realizado com sucesso!")
@@ -77,6 +124,9 @@ class LoginSystem:
             messagebox.showwarning("Aviso", "Por favor, preencha todos os campos")
 
     def open_register_window(self):
+        """
+        Abre a janela de registro para o usuário inserir seus dados.
+        """
         register_window = tk.Toplevel(self.root)
         register_window.title("Registrar")
 
@@ -101,6 +151,9 @@ class LoginSystem:
         register_button.grid(row=3, columnspan=2, pady=10)
 
     def open_login_window(self):
+        """
+        Abre a janela de login para o usuário inserir suas credenciais.
+        """
         login_window = tk.Toplevel(self.root)
         login_window.title("Login")
 
@@ -119,3 +172,10 @@ class LoginSystem:
             email_entry.get(), password_entry.get()
         ))
         login_button.grid(row=2, columnspan=2, pady=10)
+
+
+# Iniciar o sistema de login
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = LoginSystem(root)
+    root.mainloop()
