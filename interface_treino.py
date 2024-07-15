@@ -2,12 +2,12 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 from usuario import Usuario
-
+import datetime
 
 class InterfaceTreino:
     def __init__(self, usuario):
         """
-        Inicializa a interface gráfica da aplicação..
+        Inicializa a interface gráfica da aplicação.
 
         Parâmetros:
         usuario (Usuario): Um objeto da classe Usuario que contém os métodos e dados do usuário.
@@ -36,7 +36,7 @@ class InterfaceTreino:
         # Verifica se o treino já foi salvo e exibe ou faz perguntas ao usuário
         if self.usuario.verificar_treino_salvo():
             self.usuario.carregar_treino_salvo()
-            self.exibir_treino()
+            self.exibir_treino(False)  # Exibe apenas o treino do dia atual
         else:
             self.perguntas_dias_treino()
             self.pergunta_experiencia()
@@ -115,31 +115,54 @@ class InterfaceTreino:
 
         self.usuario.montar_treino()
         self.usuario.salvar_treinos_excel()
-        self.exibir_treino()
+        self.exibir_treino(True)  # Exibe todos os treinos
 
-    def exibir_treino(self):
+    def exibir_treino(self, exibir_todos):
         """
         Exibe o treino montado com base nas respostas do usuário.
+
+        Parâmetros:
+        exibir_todos (bool): Se True, exibe todos os treinos, caso contrário exibe apenas o treino do dia atual.
         """
         for widget in self.frame.winfo_children():
             widget.destroy()
 
-        ttk.Label(self.frame, text="\n*** Treino Montado ***\n", font=("Helvetica", 10)).grid(row=0, column=0,
-                                                                                              columnspan=2, pady=10)
+        dias_semana_en_to_pt = {
+            'Monday': 'segunda',
+            'Tuesday': 'terça',
+            'Wednesday': 'quarta',
+            'Thursday': 'quinta',
+            'Friday': 'sexta',
+            'Saturday': 'sábado',
+            'Sunday': 'domingo'
+        }
 
-        fonte_treino = ("Helvetica", 9)
-        for dia in self.usuario.treino_selecionado:
-            ttk.Label(self.frame, text=f"Dia: {dia['dia']}", font=("Helvetica", 13, "bold")).grid(
-                row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=5)
-            for treino in dia['treino']:
-                ttk.Label(self.frame, text=f"\nGrupo Muscular: {treino['grupo_muscular']}", font=fonte_treino).grid(
-                    row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=3)
-                for exercicio in treino['exercicios']:
-                    ttk.Label(self.frame,
-                              text=f"Exercício: {exercicio['exercicio']} - Séries: {exercicio['series']} - Repetições: {exercicio['repeticoes']}",
-                              font=fonte_treino).grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=3)
-                ttk.Separator(self.frame, orient='horizontal').grid(row=len(self.frame.grid_slaves()), column=0,
-                                                                    columnspan=2, pady=5, sticky="ew")
+        if exibir_todos:
+            ttk.Label(self.frame, text="\n*** Treino Montado ***\n", font=("Helvetica", 10)).grid(row=0, column=0, columnspan=2, pady=10)
+            fonte_treino = ("Helvetica", 9)
+            for dia in self.usuario.treino_selecionado:
+                ttk.Label(self.frame, text=f"Dia: {dia['dia']}", font=("Helvetica", 13, "bold")).grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=5)
+                for treino in dia['treino']:
+                    ttk.Label(self.frame, text=f"\nGrupo Muscular: {treino['grupo_muscular']}", font=fonte_treino).grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=3)
+                    for exercicio in treino['exercicios']:
+                        ttk.Label(self.frame, text=f"Exercício: {exercicio['exercicio']} - Séries: {exercicio['series']} - Repetições: {exercicio['repeticoes']}", font=fonte_treino).grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=3)
+                    ttk.Separator(self.frame, orient='horizontal').grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=5, sticky="ew")
+        else:
+            # Exibir apenas o treino do dia atual
+            dia_atual_en = datetime.datetime.now().strftime("%A")
+            dia_atual_pt = dias_semana_en_to_pt[dia_atual_en]
+            treino_dia_atual = next((dia for dia in self.usuario.treino_selecionado if dia['dia'].lower() == dia_atual_pt), None)
+            if treino_dia_atual:
+                ttk.Label(self.frame, text=f"\n*** Treino de Hoje ({dia_atual_pt.capitalize()}) ***\n", font=("Helvetica", 10)).grid(row=0, column=0, columnspan=2, pady=10)
+                fonte_treino = ("Helvetica", 9)
+                ttk.Label(self.frame, text=f"Dia: {treino_dia_atual['dia']}", font=("Helvetica", 13, "bold")).grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=5)
+                for treino in treino_dia_atual['treino']:
+                    ttk.Label(self.frame, text=f"\nGrupo Muscular: {treino['grupo_muscular']}", font=fonte_treino).grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=3)
+                    for exercicio in treino['exercicios']:
+                        ttk.Label(self.frame, text=f"Exercício: {exercicio['exercicio']} - Séries: {exercicio['series']} - Repetições: {exercicio['repeticoes']}", font=fonte_treino).grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=3)
+                    ttk.Separator(self.frame, orient='horizontal').grid(row=len(self.frame.grid_slaves()), column=0, columnspan=2, pady=5, sticky="ew")
+            else:
+                ttk.Label(self.frame, text=f"\n*** Você não tem um treino marcado para hoje ({dia_atual_pt.capitalize()}) ***\n", font=("Helvetica", 10)).grid(row=0, column=0, columnspan=2, pady=10)
 
         self.frame.update_idletasks()
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
