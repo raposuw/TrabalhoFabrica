@@ -7,7 +7,7 @@ from usuario import Usuario
 class InterfaceTreino:
     def __init__(self, usuario):
         """
-        Inicializa a interface gráfica da aplicação.
+        Inicializa a interface gráfica da aplicação..
 
         Parâmetros:
         usuario (Usuario): Um objeto da classe Usuario que contém os métodos e dados do usuário.
