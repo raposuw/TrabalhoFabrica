@@ -2,7 +2,7 @@ import os
 from openpyxl import Workbook, load_workbook
 
 # Defina o caminho para a pasta de credenciais e treinos
-credentials_path = os.path.join(os.path.expanduser("~"), "Documents", "credenciais")
+credentials_path = os.path.join(os.path.expanduser("~"), "Downloads", "credenciais")
 os.makedirs(credentials_path, exist_ok=True)
 
 
